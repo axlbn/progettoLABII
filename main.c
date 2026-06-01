@@ -6,7 +6,6 @@
 #include "grafo.h"
 #include "xerrori.h"
 
-#include "debug.h"
 #include <limits.h>
 
 typedef struct
