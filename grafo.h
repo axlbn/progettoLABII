@@ -2,6 +2,7 @@
 #define GRAFO_H
 
 #include <stdbool.h>
+#include <pthread.h>
 
 typedef struct arco {
     int u, v;
@@ -27,6 +28,16 @@ typedef struct {
     int n_nodi;
     int n_archi;
     int hashSize;
+
+    pthread_mutex_t *mut_gHash;
+    int nmutex;
+
+    bool *busy;
+    pthread_mutex_t mut_busy;
+    pthread_cond_t cond_busy;
 } grafo;
+
+
+
 
 #endif
