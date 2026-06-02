@@ -5,7 +5,7 @@ LDLIBS = -pthread
 
 TARGET = msf.out
 
-OBJS = main.o xerrori.o debug.o
+OBJS = main.o xerrori.o
 
 .PHONY: all clean run valgrind
 
@@ -20,10 +20,6 @@ main.o: main.c grafo.h xerrori.h debug.h
 
 xerrori.o: xerrori.c xerrori.h
 	$(CC) $(CFLAGS) -c xerrori.c -o xerrori.o
-
-debug.o: debug.c debug.h grafo.h
-	$(CC) $(CFLAGS) -c debug.c -o debug.o
-
 
 run: $(TARGET)
 	./$(TARGET) grafo.gr

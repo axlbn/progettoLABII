@@ -1,2 +1,6 @@
 *.o
 *.out
+
+debug.h
+debug.c
+
