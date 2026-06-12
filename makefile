@@ -9,6 +9,3 @@ msf.out: main.c xerrori.c grafo.h xerrori.h
 
 Msf.class: Msf.java
 	javac Msf.java
-
-clean:
-	rm -f msf.out Msf.class

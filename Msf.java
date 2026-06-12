@@ -10,9 +10,9 @@ public class Msf {
     static class Arco {
         int u;
         int v;
-        long w;
+        int w;
 
-        Arco(int u, int v, long w) {
+        Arco(int u, int v, int w) {
             this.u = u;
             this.v = v;
             this.w = w;
@@ -105,12 +105,12 @@ public class Msf {
 
                     int u;
                     int v;
-                    long w;
+                    int w;
 
                     try {
                         u = Integer.parseInt(parti[1]);
                         v = Integer.parseInt(parti[2]);
-                        w = Long.parseLong(parti[3]);
+                        w = Integer.parseInt(parti[3]);
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException("u-v-w non valido nella riga a");
                     }
@@ -156,7 +156,7 @@ public class Msf {
                 }
                 int u;
                 int v;
-                long w;
+                int w;
                 String[] parti = line.split("\\s+");
 
                 if (parti[0].equals("+")) {
@@ -166,7 +166,7 @@ public class Msf {
                     try {
                         u = Integer.parseInt(parti[1]);
                         v = Integer.parseInt(parti[2]);
-                        w = Long.parseLong(parti[3]);
+                        w = Integer.parseInt(parti[3]);
                     } catch (NumberFormatException e) {
                         continue;
                     }
@@ -254,7 +254,7 @@ public class Msf {
         List<Arco> archi_ordinati = new ArrayList<>(g.archi.values());
         UnionFind uf = new UnionFind(g.nNodi);
         archi_ordinati.sort((a, b) -> {
-            return Long.compare(a.w, b.w);
+            return Integer.compare(a.w, b.w);
         });
         archi_ordinati.forEach(a -> {
             if (uf.union(a.u, a.v)) {

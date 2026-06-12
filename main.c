@@ -13,7 +13,7 @@ typedef struct
     char op; // + oppure -
     int u;
     int v;
-    long w;
+    int w;
 } operazione;
 
 #define BUFFER_SIZE 1000
@@ -128,9 +128,9 @@ arco *parser(const char *filename, int *n_archi, int *n_nodi)
         if (line[0] == 'a')
         {
             int u = -1, v = -1;
-            long w = 0;
+            int w = 0;
             int n_read;
-            if ((n_read = sscanf(line, "a %d %d %ld", &u, &v, &w)) == 3 && u >= 0 && v >= 0 && u < v && u < *n_nodi && v < *n_nodi)
+            if ((n_read = sscanf(line, "a %d %d %d", &u, &v, &w)) == 3 && u >= 0 && v >= 0 && u < v && u < *n_nodi && v < *n_nodi)
             {
                 // trovato arco valido -> aggiungo ad insieme archi
                 if (i < *n_archi)
@@ -152,7 +152,7 @@ arco *parser(const char *filename, int *n_archi, int *n_nodi)
             else
             {
                 // linea malformata/non valida
-                fprintf(stderr, "Errore: file di input malformato o valori non validi\t n_read:%d\tu:%d\tv:%d\tw:%ld", n_read, u, v, w);
+                fprintf(stderr, "Errore: file di input malformato o valori non validi\t n_read:%d\tu:%d\tv:%d\tw:%d", n_read, u, v, w);
                 exit(1);
             }
         }
@@ -169,7 +169,7 @@ arco *parser(const char *filename, int *n_archi, int *n_nodi)
     return archi;
 }
 
-void vicini_inserisci_ordinato(elemento **lista, int id, long w, bool msf)
+void vicini_inserisci_ordinato(elemento **lista, int id, int w, bool msf)
 {
     elemento *nuovo = calloc(1, sizeof(elemento));
     if (nuovo == NULL)
@@ -213,7 +213,7 @@ void genera_vicini(grafo *g, arco *archi)
     {
         int u = archi[i].u;
         int v = archi[i].v;
-        long w = archi[i].weight;
+        int w = archi[i].weight;
         vicini_inserisci_ordinato(&g->vicini[u], v, w, false);
         vicini_inserisci_ordinato(&g->vicini[v], u, w, false);
     }
@@ -233,7 +233,7 @@ arco *ghash_get_arco(grafo *g, int u, int v) // return arco se trovato NULL altr
     }
     return NULL;
 }
-bool ghash_inserisci(grafo *g, int u, int v, long w, bool msf) // returna false se è l'arco è gia presente
+bool ghash_inserisci(grafo *g, int u, int v, int w, bool msf) // returna false se è l'arco è gia presente
 {
     int hash = calcola_hash(u, v, g->hashSize);
     arco *nuovo = malloc(sizeof(arco));
@@ -367,7 +367,7 @@ void kruskal(grafo *g, arco *archi)
     g->cCon = malloc(g->n_nodi * sizeof(int));
     int *rank = malloc(g->n_nodi * sizeof(int));
     int *minimi = malloc(g->n_nodi * sizeof(int));
-    if (g->cCon == NULL || rank == NULL)
+    if (g->cCon == NULL || rank == NULL || minimi==NULL)
     {
         xtermina("Errore malloc kruskal", __LINE__, __FILE__);
     }
@@ -386,7 +386,7 @@ void kruskal(grafo *g, arco *archi)
     {
         int u = archi[i].u;
         int v = archi[i].v;
-        long w = archi[i].weight;
+        int w = archi[i].weight;
 
         if (union_set(g, rank, minimi, u, v))
         {
@@ -411,7 +411,7 @@ void kruskal(grafo *g, arco *archi)
     free(minimi);
 }
 
-bool dfs_max_arco_msf(grafo *g, int curr, int target, bool *visited, int *max_u, int *max_v, long *max_w)
+bool dfs_max_arco_msf(grafo *g, int curr, int target, bool *visited, int *max_u, int *max_v, int *max_w)
 {
     if (curr == target)
         return true;
@@ -443,14 +443,14 @@ bool dfs_max_arco_msf(grafo *g, int curr, int target, bool *visited, int *max_u,
 
     return false;
 }
-bool trova_max_arco_msf(grafo *g, int u, int v, int *max_u, int *max_v, long *max_w)
+bool trova_max_arco_msf(grafo *g, int u, int v, int *max_u, int *max_v, int *max_w)
 {
     bool *visited = calloc(g->n_nodi, sizeof(bool));
 
     if (visited == NULL)
         xtermina("calloc visited fallita", __LINE__, __FILE__);
 
-    *max_w = LONG_MIN;
+    *max_w = INT_MIN;
     *max_u = -1;
     *max_v = -1;
 
@@ -461,15 +461,15 @@ bool trova_max_arco_msf(grafo *g, int u, int v, int *max_u, int *max_v, long *ma
 
     return trovato;
 }
-void aggiungi_arco(grafo *g, int u, int v, long w, pthread_mutex_t *mut_stampa)
+void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
 {
     // se u e v componenti diverse -> aggiungere u-v ghash,vicini,nodi di una delle due cCon devono essere aggiornati,numcCOn--,costoMfs++
     if (u > v || u < 0 || v < 0 || u > g->n_nodi - 1 || v > g->n_nodi - 1)
     {
-        fprintf(stderr, "op + ad arco non valido (%d) (%d) (%ld)\n", u, v, w);
+        fprintf(stderr, "op + ad arco non valido (%d) (%d) (%d)\n", u, v, w);
 
         xpthread_mutex_lock(mut_stampa, __LINE__, __FILE__);
-        printf("+ %d %d %ld 0\n", u, v, w);
+        printf("+ %d %d %d 0\n", u, v, w);
         xpthread_mutex_unlock(mut_stampa, __LINE__, __FILE__);
 
         return ;
@@ -482,11 +482,11 @@ void aggiungi_arco(grafo *g, int u, int v, long w, pthread_mutex_t *mut_stampa)
         if (!ghash_inserisci(g, u, v, w, true))
         {
             // arco gia presente
-            fprintf(stderr, "arco (%d)\t(%d)\t(%ld) gia presente", u, v, w);
+            fprintf(stderr, "arco (%d)\t(%d)\t(%d) gia presente", u, v, w);
             unlock_ghash(g, u, v);
 
             xpthread_mutex_lock(mut_stampa, __LINE__, __FILE__);
-            printf("+ %d %d %ld 0\n", u, v, w);
+            printf("+ %d %d %d 0\n", u, v, w);
             xpthread_mutex_unlock(mut_stampa, __LINE__, __FILE__);
 
             unlock_componenti(g, cu, cv);
@@ -528,11 +528,11 @@ void aggiungi_arco(grafo *g, int u, int v, long w, pthread_mutex_t *mut_stampa)
         lock_ghash(g, u, v);
         if (!ghash_inserisci(g, u, v, w, false))
         {
-            fprintf(stderr, "arco (%d)\t(%d)\t(%ld) gia presente", u, v, w);
+            fprintf(stderr, "arco (%d)\t(%d)\t(%d) gia presente", u, v, w);
             unlock_ghash(g, u, v);
 
             xpthread_mutex_lock(mut_stampa, __LINE__, __FILE__);
-            printf("+ %d %d %ld 0\n", u, v, w);
+            printf("+ %d %d %d 0\n", u, v, w);
             xpthread_mutex_unlock(mut_stampa, __LINE__, __FILE__);
 
             unlock_componenti(g, cu, cv);
@@ -544,7 +544,7 @@ void aggiungi_arco(grafo *g, int u, int v, long w, pthread_mutex_t *mut_stampa)
         g->n_archi++;
 
         int max_u, max_v;
-        long max_w;
+        int max_w;
 
         trova_max_arco_msf(g, u, v, &max_u, &max_v, &max_w);
 
@@ -572,7 +572,7 @@ void aggiungi_arco(grafo *g, int u, int v, long w, pthread_mutex_t *mut_stampa)
         }
     }
     xpthread_mutex_lock(mut_stampa, __LINE__, __FILE__);
-    printf("+ %d %d %ld %d %d %ld\n", u, v, w, g->n_archi, g->numCoCo, g->costoMSF);
+    printf("+ %d %d %d %d %d %ld\n", u, v, w, g->n_archi, g->numCoCo, g->costoMSF);
     xpthread_mutex_unlock(mut_stampa, __LINE__, __FILE__);
 
     unlock_componenti(g, cu, cv);
@@ -874,7 +874,7 @@ void producer(buffer_condiviso *buff, char *op_filename)
 
         if (line[0] == '+')
         {
-            if (sscanf(line, "+ %d %d %ld", &op.u, &op.v, &op.w) == 3)
+            if (sscanf(line, "+ %d %d %d", &op.u, &op.v, &op.w) == 3)
             {
                 op.op = '+';
                 xpthread_mutex_lock(&buff->mutex, __LINE__, __FILE__);
