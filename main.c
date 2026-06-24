@@ -495,6 +495,7 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
         vicini_inserisci_ordinato(&g->vicini[u], v, w, true);
         vicini_inserisci_ordinato(&g->vicini[v], u, w, true);
 
+        xpthread_mutex_lock(&g->mut_busy, __LINE__, __FILE__);
         if (cu < cv)
         {
             // aggiorno gli identificatori di cCon di v con u
@@ -516,6 +517,8 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
                 }
             }
         }
+        xpthread_mutex_unlock(&g->mut_busy, __LINE__, __FILE__);
+
         xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
         g->numCoCo--;
         g->costoMSF += w;
@@ -769,6 +772,7 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
         if (trovato == false)
         {
             // diventano componenti disconnesse: aggiorno gli identificatori di componente
+            xpthread_mutex_lock(&g->mut_busy, __LINE__, __FILE__);
             for (int i = 0; i < g->n_nodi; i++)
             {
                 if (Lu[i] == true)
@@ -776,6 +780,8 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
                 else if (Lv[i] == true)
                     g->cCon[i] = min_v;
             }
+            xpthread_mutex_unlock(&g->mut_busy, __LINE__, __FILE__);
+            
             xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
             g->numCoCo++;
             xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
