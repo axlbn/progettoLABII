@@ -516,11 +516,11 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
                 }
             }
         }
-        xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
         g->numCoCo--;
         g->costoMSF += w;
         g->n_archi++;
-        xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
     }
     else
     {
@@ -542,9 +542,9 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
         vicini_inserisci_ordinato(&g->vicini[u], v, w, false);
         vicini_inserisci_ordinato(&g->vicini[v], u, w, false);
 
-        xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
         g->n_archi++;
-        xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
 
         int max_u, max_v;
         int max_w;
@@ -571,9 +571,9 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
 
             vicini_set_msf(g, &nuovo, true);
 
-            xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
             g->costoMSF = g->costoMSF - max_w + w;
-            xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
         }
     }
     xpthread_mutex_lock(mut_stampa, __LINE__, __FILE__);
@@ -738,9 +738,9 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
         vicini_cancella_arco(g, &tmp);
         ghash_cancella_arco(g, &tmp);
 
-        xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
         g->n_archi--;
-        xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
 
         unlock_ghash(g, u, v);
     }
@@ -750,10 +750,10 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
         vicini_cancella_arco(g, &tmp);
         ghash_cancella_arco(g, &tmp);
 
-        xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
         g->costoMSF -= tmp.weight;
         g->n_archi--;
-        xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+        xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
 
         unlock_ghash(g, u, v);
 
@@ -776,9 +776,9 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
                 else if (Lv[i] == true)
                     g->cCon[i] = min_v;
             }
-            xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
             g->numCoCo++;
-            xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
         }
         else
         {
@@ -788,9 +788,9 @@ void cancella_arco(grafo *g, int u, int v, pthread_mutex_t *mut_stampa)
 
             vicini_set_msf(g, &best, true);
 
-            xpthread_mutex_lock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_lock(&g->mut_statistiche,__LINE__,__FILE__);
             g->costoMSF += best.weight;
-            xpthread_mutex_unlock(g->mut_statistiche,__LINE__,__FILE__);
+            xpthread_mutex_unlock(&g->mut_statistiche,__LINE__,__FILE__);
         }
 
         free(Lu);
@@ -1094,7 +1094,7 @@ int main(int argc, char **argv)
 
     g->busy = calloc(g->n_nodi, sizeof(bool));
     if(g->busy==NULL) xtermina("Errore calloc",__LINE__,__FILE__);
-    xpthread_mutex_init(g->mut_statistiche, NULL, __LINE__, __FILE__);
+    xpthread_mutex_init(&g->mut_statistiche, NULL, __LINE__, __FILE__);
     xpthread_mutex_init(&g->mut_busy, NULL, __LINE__, __FILE__);
     xpthread_cond_init(&g->cond_busy, NULL, __LINE__, __FILE__);
 
@@ -1110,7 +1110,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < g->nmutex; i++)
         xpthread_mutex_destroy(&g->mut_gHash[i], __LINE__, __FILE__);
     free(g->mut_gHash);
-    xpthread_mutex_destroy(g->mut_statistiche, __LINE__, __FILE__);
+    xpthread_mutex_destroy(&g->mut_statistiche, __LINE__, __FILE__);
     xpthread_mutex_destroy(&g->mut_busy, __LINE__, __FILE__);
     xpthread_cond_destroy(&g->cond_busy, __LINE__, __FILE__);
 

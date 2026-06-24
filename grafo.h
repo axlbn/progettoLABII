@@ -29,7 +29,7 @@ typedef struct {
     int n_archi;
     int hashSize;
 
-    pthread_mutex_t *mut_statistiche; //mutec per n_nodi,n_archi,costoMSF
+    pthread_mutex_t mut_statistiche; //mutec per n_nodi,n_archi,costoMSF
 
     pthread_mutex_t *mut_gHash;
     int nmutex;
