@@ -588,9 +588,9 @@ void aggiungi_arco(grafo *g, int u, int v, int w, pthread_mutex_t *mut_stampa)
     return ;
 }
 
-int get_Lx(grafo *g, int start, bool *Lx)
+int get_Lx(grafo *g, int x, bool *Lx)
 {
-    int min_id = start;
+    int min_id = x;
     int *stack = malloc(g->n_nodi * sizeof(int));
     if (stack == NULL)
     {
@@ -598,24 +598,26 @@ int get_Lx(grafo *g, int start, bool *Lx)
     }
 
     int top = 0;
-    stack[top] = start;
+    stack[top] = x;
     top++;
-    Lx[start] = true;
+    Lx[x] = true;
     while (top > 0)
     {
-        int x = stack[--top];
+        top--;
+        int curr_node = stack[top];
 
-        if (x < min_id)
-            min_id = x;
+        if (curr_node < min_id)
+            min_id = curr_node;
 
-        elemento *curr = g->vicini[x];
+        elemento *curr = g->vicini[curr_node];
 
         while (curr != NULL)
         {
             if (curr->msf && !Lx[curr->id])
             {
                 Lx[curr->id] = true;
-                stack[top++] = curr->id;
+                stack[top] = curr->id;
+                top++;
             }
 
             curr = curr->next;
