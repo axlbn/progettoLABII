@@ -49,7 +49,6 @@ int calcola_hash(int u, int v, int hashSize)
     return (int)(hash % hashSize);
 }
 
-// utils di sincronizzazione
 void lock_ghash(grafo *g, int u, int v)
 {
     int hash = calcola_hash(u, v, g->hashSize);
@@ -1044,8 +1043,8 @@ void calcola_statistiche(grafo *g)
 
 int main(int argc, char **argv)
 {
-    int hashSize = 100000; // default
-    int n_thread = 3;      // default
+    int hashSize = 100000; 
+    int n_thread = 3;      
     int n_mutex = 1000;
     int opt;
     while ((opt = getopt(argc, argv, "t:H:M:")) != -1)
